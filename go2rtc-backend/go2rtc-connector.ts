@@ -6,10 +6,7 @@ const go2rtc = "http://localhost:1984";
 
 const cameraId = 1;
 
-socket.on(`browser-requires-stream-${cameraId}`, async ({streamName}) => {
-
-  console.log('ooooiii')
-
+socket.on(`browser-requires-stream-${cameraId}`, async ({streamName, sessionUuid}) => {
   let responseBody: any;
 
   const getResponse = await fetch(`${go2rtc}/api/webtorrent?src=${streamName}`, {
@@ -32,5 +29,6 @@ socket.on(`browser-requires-stream-${cameraId}`, async ({streamName}) => {
     cameraId,
     share: (responseBody as any).share,
     pwd: (responseBody as any).pwd,
+    sessionUuid
   });
 });
