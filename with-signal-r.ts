@@ -1,6 +1,6 @@
 import { HttpTransportType, HubConnectionBuilder } from "@microsoft/signalr";
 
-const API_URL = "https://localhost:5001";
+const API_URL = "https://dev-api-vpc.egoscue.com";
 
 const cameraId = 1;
 
