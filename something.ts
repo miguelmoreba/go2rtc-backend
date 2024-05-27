@@ -41,11 +41,11 @@ signalRConnection.on(`BrowserRequiresStream`, async () => {
   // Get an image from this server, send it to signalR
 });
 
-signalRConnection.on("NewImage", async (image) => {
-    console.log('the image', image);
-    const imageTag = `<img src="data:image/png;base64,${image}" alt="Appended Image">`;
-    fs.appendFile('./test.html', imageTag, () => {});
-})
+// signalRConnection.on("NewImage", async (image) => {
+//     console.log('the image', image);
+//     const imageTag = `<img src="data:image/png;base64,${image}" alt="Appended Image">`;
+//     fs.appendFile('./test.html', imageTag, () => {});
+// })
 
 const getImage = (imageBuffer: Buffer) => {
   // const imageBuffer = fs.readFileSync(path.join(__dirname, `./images/${color}.png`));
