@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 const API_URL = "https://localhost:5001";
-let color = "blue";
+let color = 1;
 
 const signalRConnection = new HubConnectionBuilder()
   .withUrl(`${API_URL}/hubs/v1/depthCameraHub`, {
@@ -20,16 +20,16 @@ signalRConnection.start().then(async () => {
     console.log("Connected to signalR");
     // Read the image file from the file system
     setInterval(async () => {
-      const buffer = getImageAsBuffer();
+      const buffer = getImageAsBuffer(color);
       const base64Image = getImage(buffer);
-      color = color === "blue" ? "yellow" : "blue";
+      color++
       console.log(color);
 
       // Send the Base64 encoded image through SignalR
       await signalRConnection.invoke("PiOffersStream", base64Image);
-      await signalRConnection.invoke("ImageAsBuffer", buffer);
+      // await signalRConnection.invoke("ImageAsBuffer", buffer);
       console.log("Image sent to SignalR");
-    }, 30);
+    }, 80);
   } catch (error) {
     console.error("Error reading or sending image:", error);
   }
@@ -44,9 +44,7 @@ signalRConnection.on(`BrowserRequiresStream`, async () => {
 signalRConnection.on("NewImage", async (image) => {
     console.log('the image', image);
     const imageTag = `<img src="data:image/png;base64,${image}" alt="Appended Image">`;
-    fs.appendFile('./test.html', imageTag, () => {
-        console.log('error');
-    });
+    fs.appendFile('./test.html', imageTag, () => {});
 })
 
 const getImage = (imageBuffer: Buffer) => {
@@ -54,6 +52,6 @@ const getImage = (imageBuffer: Buffer) => {
   return imageBuffer.toString("base64");
 };
 
-const getImageAsBuffer = () => {
-  return fs.readFileSync(path.join(__dirname, `./images/${color}.png`));
+const getImageAsBuffer = (imageName: number) => {
+  return fs.readFileSync(path.join(__dirname, `./video/${imageName}.jpeg`));
 }
