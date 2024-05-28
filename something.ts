@@ -3,7 +3,9 @@ import axios from "axios";
 import fs from "fs";
 import path from "path";
 
-const API_URL = "https://localhost:5001";
+// const API_URL = "https://localhost:5001";
+const API_URL = "https://dev-api-vpc.egoscue.com";
+
 let color = 1;
 
 const signalRConnection = new HubConnectionBuilder()
