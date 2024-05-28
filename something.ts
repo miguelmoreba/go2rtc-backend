@@ -21,25 +21,17 @@ signalRConnection.start().then(async () => {
     console.log("Connected to signalR");
     // Read the image file from the file system
     setInterval(async () => {
-      const buffer = getImageAsBuffer(color);
-      const base64Image = getImage(buffer);
-      color++;
-      console.log(color);
 
-      const response = await axios.get(
-        "https://localhost/capture?shrink=0.5",
-        { responseType: "arraybuffer" }
-      );
-      const bufferFromResponse = Buffer.from(response.data, "binary");
-      const base64ImageFromResponse = bufferFromResponse.toString("base64");
+      // const base64Image = await getImageFromFile();
+      const base64Image = await getImageFromCamera();
 
-      console.log("RESPONSE", response, base64ImageFromResponse);
 
       // Send the Base64 encoded image through SignalR
-      await signalRConnection.invoke("PiOffersStream", base64ImageFromResponse);
+      console.log(base64Image);
+      await signalRConnection.invoke("Image", base64Image);
       // await signalRConnection.invoke("ImageAsBuffer", buffer);
       console.log("Image sent to SignalR");
-    }, 1000);
+    }, 60);
   } catch (error) {
     console.error("Error reading or sending image:", error);
   }
@@ -64,4 +56,19 @@ const getImage = (imageBuffer: Buffer) => {
 
 const getImageAsBuffer = (imageName: number) => {
   return fs.readFileSync(path.join(__dirname, `./video/${imageName}.jpeg`));
+};
+
+const getImageFromCamera = async () => {
+  const response = await axios.get("https://localhost/capture?shrink=0.5", {
+    responseType: "arraybuffer",
+  });
+  const bufferFromResponse = Buffer.from(response.data, "binary");
+  return bufferFromResponse.toString("base64");
+};
+
+const getImageFromFile = async () => {
+  const buffer = getImageAsBuffer(color);
+  color++;
+  console.log(color);
+  return getImage(buffer);
 };
