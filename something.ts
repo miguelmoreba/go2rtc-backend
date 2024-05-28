@@ -1,4 +1,5 @@
 import { HttpTransportType, HubConnectionBuilder } from "@microsoft/signalr";
+import axios from "axios";
 import fs from "fs";
 import path from "path";
 
@@ -22,14 +23,23 @@ signalRConnection.start().then(async () => {
     setInterval(async () => {
       const buffer = getImageAsBuffer(color);
       const base64Image = getImage(buffer);
-      color++
+      color++;
       console.log(color);
 
+      const response = await axios.get(
+        "https://localhost/capture?shrink=0.5",
+        { responseType: "arraybuffer" }
+      );
+      const bufferFromResponse = Buffer.from(response.data, "binary");
+      const base64ImageFromResponse = bufferFromResponse.toString("base64");
+
+      console.log("RESPONSE", response, base64ImageFromResponse);
+
       // Send the Base64 encoded image through SignalR
-      await signalRConnection.invoke("PiOffersStream", base64Image);
+      await signalRConnection.invoke("PiOffersStream", base64ImageFromResponse);
       // await signalRConnection.invoke("ImageAsBuffer", buffer);
       console.log("Image sent to SignalR");
-    }, 80);
+    }, 1000);
   } catch (error) {
     console.error("Error reading or sending image:", error);
   }
@@ -54,4 +64,4 @@ const getImage = (imageBuffer: Buffer) => {
 
 const getImageAsBuffer = (imageName: number) => {
   return fs.readFileSync(path.join(__dirname, `./video/${imageName}.jpeg`));
-}
+};
