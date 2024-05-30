@@ -60,7 +60,7 @@ socket.on("browser-connected", async ({ uuid }) => {
       dataChannel.send(image);
     }
     messageCounter++;
-  }, 60);
+  }, 120);
 });
 
 // Listen for answer from the Raspberry Pi
