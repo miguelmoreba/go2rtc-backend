@@ -2,7 +2,7 @@ import {
     RTCPeerConnection,
     RTCSessionDescription,
     RTCIceCandidate,
-  } from "@roamhq/wrtc";
+  } from "wrtc";
   import io from "socket.io-client";
   // import axios from "axios";
   import fs from "fs";
