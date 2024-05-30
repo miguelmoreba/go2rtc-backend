@@ -94,7 +94,7 @@ const getImageAsBuffer = (imageName: number) => {
 
 const getImageFromCamera = async () => {
   try {
-    const response = await axios.get("https://localhost/capture?shrink=0.5", {
+    const response = await axios.get("https://localhost/capture?shrink=0.1", {
       responseType: "arraybuffer",
       httpsAgent: new https.Agent({
         rejectUnauthorized: false,
@@ -107,3 +107,5 @@ const getImageFromCamera = async () => {
     return new Buffer("");
   }
 };
+
+
