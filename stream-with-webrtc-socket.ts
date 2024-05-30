@@ -8,6 +8,7 @@ import {
   import fs from "fs";
   import path from "path";
   import axios from "axios";
+  import https from "https";
   
   const servers = {
     iceServers: [
@@ -94,6 +95,9 @@ import {
   const getImageFromCamera = async () => {
     const response = await axios.get("https://localhost/capture?shrink=0.5", {
       responseType: "arraybuffer",
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false
+      })
     });
     return Buffer.from(response.data, "binary");
   };
