@@ -37,7 +37,7 @@ import {
     const dataChannel = peerConnection.createDataChannel("piSendChannel");
   
     // Create offer and send it to the Raspberry Pi
-    peerConnection.createOffer().then((offer) => {
+    peerConnection.createOffer().then((offer: any) => {
       peerConnection.setLocalDescription(offer);
       console.log(uuid);
       socket.emit("offer", { offer, uuid });
