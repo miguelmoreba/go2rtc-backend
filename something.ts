@@ -24,8 +24,8 @@ signalRConnection.start().then(async () => {
     // Read the image file from the file system
     setInterval(async () => {
 
-      // const base64Image = await getImageFromFile();
-      const base64Image = await getImageFromCamera();
+      const base64Image = await getImageFromFile();
+      // const base64Image = await getImageFromCamera();
 
 
       // Send the Base64 encoded image through SignalR
