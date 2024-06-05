@@ -10,7 +10,6 @@ import axios from "axios";
 import https from "https";
 import sharp from "sharp";
 const { RTCVideoSource, RTCVideoSink, rgbaToI420 } = require('wrtc').nonstandard;
-const imageSize = require("image-size")
 
 const servers = {
   iceServers: [
@@ -59,8 +58,8 @@ socket.on("browser-connected", async ({ uuid }) => {
 
     if (dataChannel?.readyState == "open") {
       // dataChannel.send(`Counter is ${messageCounter}`);
-      // const image = getImageAsBuffer(fileNumber);
-      const image = await getImageFromCamera();
+      const image = getImageAsBuffer(fileNumber);
+      // const image = await getImageFromCamera();
       fileNumber++;
 
       // dataChannel.send(base64Image);
@@ -71,9 +70,6 @@ socket.on("browser-connected", async ({ uuid }) => {
       }
 
       console.time(`Processing_time_${fileNumber}`)
-      console.time(`ImageSize_${fileNumber}`);
-      const {height, width} = imageSize(image);
-      console.timeEnd(`ImageSize_${fileNumber}`);
 
       console.time(`Sharp_${fileNumber}`)
       const { data, info } = await sharp(image)
@@ -83,9 +79,9 @@ socket.on("browser-connected", async ({ uuid }) => {
       console.timeEnd(`Sharp_${fileNumber}`);
     
       const rgbaData = new Uint8ClampedArray(data);
-      const i420Data = new Uint8ClampedArray(width * height * 1.5);
-      const rgbaFrame = { width: width, height: height, data: rgbaData };
-      const i420Frame = { width: width, height, data: i420Data };
+      const i420Data = new Uint8ClampedArray(info.width * info.height * 1.5);
+      const rgbaFrame = { width: info.width, height: info.height, data: rgbaData };
+      const i420Frame = { width: info.width, height: info.height, data: i420Data };
 
       rgbaToI420(rgbaFrame, i420Frame);
 
