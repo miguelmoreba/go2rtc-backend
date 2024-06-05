@@ -4,7 +4,6 @@ import {
   RTCIceCandidate,
 } from "wrtc";
 import io from "socket.io-client";
-// import axios from "axios";
 import fs from "fs";
 import path from "path";
 import axios from "axios";
