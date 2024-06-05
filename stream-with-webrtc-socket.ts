@@ -60,7 +60,7 @@ socket.on("browser-connected", async ({ uuid }) => {
       dataChannel.send(image);
     }
     messageCounter++;
-  }, 80);
+  }, 60);
 });
 
 // Listen for answer from the Raspberry Pi
@@ -94,7 +94,7 @@ const getImageAsBuffer = (imageName: number) => {
 
 const getImageFromCamera = async () => {
   try {
-    const response = await axios.get("https://localhost/capture?shrink=0.1", {
+    const response = await axios.get("https://localhost/capture?shrink=0.3", {
       responseType: "arraybuffer",
       httpsAgent: new https.Agent({
         rejectUnauthorized: false,
