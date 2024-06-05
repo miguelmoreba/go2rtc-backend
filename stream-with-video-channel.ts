@@ -9,7 +9,6 @@ import fs from "fs";
 import path from "path";
 import axios from "axios";
 import https from "https";
-import Jimp from "jimp";
 import sharp from "sharp";
 const { RTCVideoSource, RTCVideoSink, rgbaToI420 } = require('wrtc').nonstandard;
 const imageSize = require("image-size")
