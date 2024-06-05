@@ -9,6 +9,10 @@ import fs from "fs";
 import path from "path";
 import axios from "axios";
 import https from "https";
+import Jimp from "jimp";
+import sharp from "sharp";
+const { RTCVideoSource, RTCVideoSink, rgbaToI420 } = require('wrtc').nonstandard;
+const imageSize = require("image-size")
 
 const servers = {
   iceServers: [
@@ -34,6 +38,11 @@ socket.on("browser-connected", async ({ uuid }) => {
 
   peerConnections.set(uuid, peerConnection);
 
+  const source = new RTCVideoSource();
+  const track = source.createTrack();
+  const transceiver = peerConnection.addTransceiver(track);
+  const sink = new RTCVideoSink(transceiver.receiver.track);
+
   // Without the creation of this dummy data channel, the connection doesn't work, and I don't have access to the pi channel
   const dataChannel = peerConnection.createDataChannel("piSendChannel");
 
@@ -57,10 +66,37 @@ socket.on("browser-connected", async ({ uuid }) => {
       fileNumber++;
 
       // dataChannel.send(base64Image);
-      dataChannel.send(image);
+      // dataChannel.send(image);
+
+      if (image === null){
+        return;
+      }
+
+      console.time(`Processing_time_${fileNumber}`)
+      console.time(`ImageSize_${fileNumber}`);
+      const {height, width} = imageSize(image);
+      console.timeEnd(`ImageSize_${fileNumber}`);
+
+      console.time(`Sharp_${fileNumber}`)
+      const { data, info } = await sharp(image)
+        .raw()
+        .ensureAlpha()
+        .toBuffer({ resolveWithObject: true });
+      console.timeEnd(`Sharp_${fileNumber}`);
+    
+      const rgbaData = new Uint8ClampedArray(data);
+      const i420Data = new Uint8ClampedArray(width * height * 1.5);
+      const rgbaFrame = { width: width, height: height, data: rgbaData };
+      const i420Frame = { width: width, height, data: i420Data };
+
+      rgbaToI420(rgbaFrame, i420Frame);
+
+      source.onFrame(i420Frame);
+      console.log("Is sent");
+      console.timeEnd(`Processing_time_${fileNumber}`)
     }
     messageCounter++;
-  }, 60);
+  }, 70);
 });
 
 // Listen for answer from the Raspberry Pi
@@ -94,18 +130,18 @@ const getImageAsBuffer = (imageName: number) => {
 
 const getImageFromCamera = async () => {
   try {
+    console.time(`Call_to_camera_${fileNumber}`);
     const response = await axios.get("https://localhost/capture?shrink=0.3", {
       responseType: "arraybuffer",
       httpsAgent: new https.Agent({
         rejectUnauthorized: false,
       }),
     });
+    console.timeEnd(`Call_to_camera_${fileNumber}`)
 
     return Buffer.from(response.data, "binary");
   } catch {
-    console.log("THere was some error");
-    return new Buffer("");
+    console.log("There was some error");
+    return null;
   }
 };
-
-
