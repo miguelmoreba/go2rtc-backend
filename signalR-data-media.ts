@@ -10,6 +10,7 @@ import {
 
 // const API_URL = "https://dev-api-vpc.egoscue.com";
 const API_URL = "https://localhost:5001";
+const CAMERA_API_URL = "https://localhost";
 
 const servers = {
   iceServers: [
@@ -78,8 +79,22 @@ signalRConnection.on(
     const sink = new RTCVideoSink(transceiver.receiver.track);
 
     // Without the creation of this dummy data channel, the connection doesn't work, and I don't have access to the pi channel
-    const dataChannel = peerConnection.createDataChannel("piSendChannel");
-    setInterval(() => setupDataChannel(peerConnection, dataChannel), 1000);
+    const piSendChannel = peerConnection.createDataChannel("piSendChannel");
+    setInterval(() => setupDataChannel(peerConnection, piSendChannel), 1000);
+
+    const cameraApiChannel = peerConnection.createDataChannel("cameraApiChannel");
+    cameraApiChannel.onmessage = async (event) => {
+      try{
+        // const response = await axios.get(`${API_URL}${event.message.path}`);
+        console.log('THIS IS THE MESSAGE', event.data)
+        const response = await fetch(`${CAMERA_API_URL}${event.data}`);
+        console.log('THIS IS THE RESPONSE', await response.text());
+        // cameraApiChannel.send(JSON.stringify(await response.json()));
+      } catch (e) {
+        console.log('ERROR', e)
+        cameraApiChannel.send(JSON.stringify({ok: false}));
+      }
+    }
 
     // console.log(peerConnection);
 
