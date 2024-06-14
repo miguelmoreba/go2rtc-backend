@@ -1,5 +1,4 @@
 import { HttpTransportType, HubConnectionBuilder } from "@microsoft/signalr";
-// import { RTCVideoSink, RTCVideoSource } from "@roamhq/wrtc/types/nonstandard";
 const { RTCVideoSource, RTCVideoSink, rgbaToI420 } =
   require("wrtc").nonstandard;
 import {
@@ -8,7 +7,6 @@ import {
   RTCIceCandidate,
 } from "wrtc";
 
-// const API_URL = "https://dev-api-vpc.egoscue.com";
 const API_URL = "https://dev-api-vpc.egoscue.com";
 const CAMERA_API_URL = "https://localhost";
 
@@ -23,7 +21,6 @@ const servers = {
 
 const cameraId = 1;
 
-// const go2rtc = "http://localhost:1984";
 
 const signalRConnection = new HubConnectionBuilder()
   .withUrl(`${API_URL}/hubs/v1/depthCameraHub`, {
@@ -133,6 +130,5 @@ const setupDataChannel = (peerConnection, dataChannel) => {
 
   if (dataChannel?.readyState == "open") {
     dataChannel.send(`Counter is 1`);
-
   }
 };
