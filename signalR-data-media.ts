@@ -82,23 +82,41 @@ signalRConnection.on(
     const piSendChannel = peerConnection.createDataChannel("piSendChannel");
     setInterval(() => setupDataChannel(peerConnection, piSendChannel), 1000);
 
-    const cameraApiChannel = peerConnection.createDataChannel("cameraApiChannel");
+    const cameraApiChannel =
+      peerConnection.createDataChannel("cameraApiChannel");
     cameraApiChannel.onmessage = async (event) => {
-      try{
+      try {
         // const response = await axios.get(`${API_URL}${event.message.path}`);
-        console.log('THIS IS THE MESSAGE', event.data)
+        console.log("THIS IS THE MESSAGE", event.data);
         const response = await fetch(`${CAMERA_API_URL}${event.data}`);
-        console.log('THIS IS THE RESPONSE', await response.text());
-        // cameraApiChannel.send(JSON.stringify(await response.json()));
+        const contentType = response.headers.get("content-type");
+
+        if (contentType?.includes("text")) {
+          const formattedResponse = {
+            ok: response.ok,
+            data: await response.text(),
+          };
+          console.log('text response', formattedResponse);
+          cameraApiChannel.send(JSON.stringify(formattedResponse));
+        } else if (contentType?.includes("JSON")) {
+          const formattedResponse = {
+            ok: response.ok,
+            data: await response.json(),
+          };
+          cameraApiChannel.send(JSON.stringify(formattedResponse));
+        } else if (contentType?.includes("image")) {
+          const myBlob = await response.blob();
+          console.log(typeof myBlob, myBlob, myBlob instanceof Blob);
+          cameraApiChannel.send(await myBlob.arrayBuffer());
+        } else if (contentType?.includes("octet-stream")) {
+          cameraApiChannel.send(await response.arrayBuffer());
+        }
       } catch (e) {
-        console.log('ERROR', e)
-        cameraApiChannel.send(JSON.stringify({ok: false}));
+        console.log("ERROR", e);
+        cameraApiChannel.send(JSON.stringify({ ok: false }));
       }
-    }
+    };
 
-    // console.log(peerConnection);
-
-    // // Create offer and send it to the Raspberry Pi
     peerConnection.createOffer().then((offer: any) => {
       console.log("Offer created");
       peerConnection.setLocalDescription(offer);
