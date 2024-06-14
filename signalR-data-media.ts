@@ -53,9 +53,7 @@ signalRConnection.on(
         console.log("new candidate", candidate, sessionUuid);
         try {
           const peerConnection = peerConnections.get(sessionUuid);
-          // Convert the received ICE candidate to RTCIceCandidate
           const iceCandidate = new RTCIceCandidate(JSON.parse(candidate));
-          // Add the ICE candidate to the peer connection
           await peerConnection?.addIceCandidate(iceCandidate);
         } catch (error) {
           console.error("Error adding ICE candidate:", error);
@@ -83,7 +81,6 @@ signalRConnection.on(
       peerConnection.createDataChannel("cameraApiChannel");
     cameraApiChannel.onmessage = async (event) => {
       try {
-        // const response = await axios.get(`${API_URL}${event.message.path}`);
         console.log("THIS IS THE MESSAGE", event.data);
         const response = await fetch(`${CAMERA_API_URL}${event.data}`);
         const contentType = response.headers.get("content-type");
