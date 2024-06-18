@@ -163,34 +163,34 @@ const setUpDataChannelApiInterface = async (
   cameraApiChannel.onerror = (e) => console.log("Channel error", e);
 };
 
-// const setupMediaChannelStream = async (peerConnection: RTCPeerConnection) => {
-//   const source = new RTCVideoSource();
-//   const track = source.createTrack();
-//   const transceiver = peerConnection.addTransceiver(track);
-//   new RTCVideoSink(transceiver.receiver.track);
+const setupMediaChannelStream = async (peerConnection: RTCPeerConnection) => {
+  const source = new RTCVideoSource();
+  const track = source.createTrack();
+  const transceiver = peerConnection.addTransceiver(track);
+  new RTCVideoSink(transceiver.receiver.track);
 
-//   // const image = getImageAsBuffer(fileNumber);
-//   const capture = await getCaptureFromApi();
+  // const image = getImageAsBuffer(fileNumber);
+  const capture = await getCaptureFromApi();
 
-//   if (capture.image === null) {
-//     // TODO: set up error count
-//     return;
-//   }
+  if (capture.image === null) {
+    // TODO: set up error count
+    return;
+  }
 
-//   const { data, info } = await sharp(capture.image)
-//     .raw()
-//     .ensureAlpha()
-//     .toBuffer({ resolveWithObject: true });
+  const { data, info } = await sharp(capture.image)
+    .raw()
+    .ensureAlpha()
+    .toBuffer({ resolveWithObject: true });
 
-//   const rgbaData = new Uint8ClampedArray(data);
-//   const i420Data = new Uint8ClampedArray(info.width * info.height * 1.5);
-//   const rgbaFrame = { width: info.width, height: info.height, data: rgbaData };
-//   const i420Frame = { width: info.width, height: info.height, data: i420Data };
+  const rgbaData = new Uint8ClampedArray(data);
+  const i420Data = new Uint8ClampedArray(info.width * info.height * 1.5);
+  const rgbaFrame = { width: info.width, height: info.height, data: rgbaData };
+  const i420Frame = { width: info.width, height: info.height, data: i420Data };
 
-//   rgbaToI420(rgbaFrame, i420Frame);
+  rgbaToI420(rgbaFrame, i420Frame);
 
-//   source.onFrame(i420Frame);
-// };
+  source.onFrame(i420Frame);
+};
 
 const setUpDummyChannelStream = (peerConnection: RTCPeerConnection) => {
   // Without the creation of this dummy data channel, the connection doesn't work, and I don't have access to the pi channel
@@ -200,7 +200,7 @@ const setUpDummyChannelStream = (peerConnection: RTCPeerConnection) => {
 
 const getCaptureFromApi = async () => {
   try {
-    const response = await fetch(`/capture?shrink=0.5&exposure=${exposure}`);
+    const response = await fetch(`/capture?shrink=0.3&exposure=${exposure}`);
     const contentType = response.headers.get("content-type");
     if (contentType?.includes("image")) {
       return await {
