@@ -43,7 +43,7 @@ signalRConnection.start().then(async () => {
   const deviceId = await getDeviceId();
   
   signalRConnection.on(
-    `ClientRequiresStream-${cameraId}`,
+    `ClientRequiresStream-${deviceId}`,
     async (sessionUuid) => {
       signalRConnection.on(
         `VerifiedAnswer-${sessionUuid}`,
