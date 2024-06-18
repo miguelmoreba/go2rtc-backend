@@ -115,6 +115,12 @@ const setUpDataChannelApiInterface = async (
   peerConnection: RTCPeerConnection
 ) => {
   const cameraApiChannel = peerConnection.createDataChannel("cameraApiChannel");
+
+  setTimeout(() => {
+    console.log("peerConnection is", peerConnection.connectionState);
+    console.log("cameraApiChannel is", cameraApiChannel.readyState);
+  }, 1000)
+
   cameraApiChannel.onmessage = async (event) => {
     try {
       console.log("THIS IS THE MESSAGE", event.data);
