@@ -7,7 +7,6 @@ import {
   RTCSessionDescription,
   RTCIceCandidate,
 } from "wrtc";
-const fetch = require("node-fetch");
 import { Blob } from "node:buffer";
 
 const API_URL = "https://dev-api-vpc.egoscue.com";
@@ -38,51 +37,57 @@ process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 
 const peerConnections = new Map<string, RTCPeerConnection>();
 
-signalRConnection.on(
-  `ClientRequiresStream-${cameraId}`,
-  async (sessionUuid) => {
-    signalRConnection.on(
-      `VerifiedAnswer-${sessionUuid}`,
-      async (sessionUuid, answer) => {
-        console.log(`Got an answer for uuid ${sessionUuid}`);
-        const peerConnection = peerConnections.get(sessionUuid);
-        const answerDescription = new RTCSessionDescription(JSON.parse(answer));
-        await peerConnection?.setRemoteDescription(answerDescription);
-      }
-    );
+signalRConnection.start().then(async () => {
+  console.log("Connected to signalR");
 
-    signalRConnection.on(
-      `VerifiedIceCandidate-${sessionUuid}`,
-      async (sessionUuid, candidate) => {
-        console.log("new candidate", candidate, sessionUuid);
-        try {
+  const deviceId = await getDeviceId();
+  
+  signalRConnection.on(
+    `ClientRequiresStream-${cameraId}`,
+    async (sessionUuid) => {
+      signalRConnection.on(
+        `VerifiedAnswer-${sessionUuid}`,
+        async (sessionUuid, answer) => {
+          console.log(`Got an answer for uuid ${sessionUuid}`);
           const peerConnection = peerConnections.get(sessionUuid);
-          const iceCandidate = new RTCIceCandidate(JSON.parse(candidate));
-          await peerConnection?.addIceCandidate(iceCandidate);
-        } catch (error) {
-          console.error("Error adding ICE candidate:", error);
+          const answerDescription = new RTCSessionDescription(
+            JSON.parse(answer)
+          );
+          await peerConnection?.setRemoteDescription(answerDescription);
         }
-      }
-    );
+      );
 
-    const peerConnection = new RTCPeerConnection(servers);
+      signalRConnection.on(
+        `VerifiedIceCandidate-${sessionUuid}`,
+        async (sessionUuid, candidate) => {
+          console.log("new candidate", candidate, sessionUuid);
+          try {
+            const peerConnection = peerConnections.get(sessionUuid);
+            const iceCandidate = new RTCIceCandidate(JSON.parse(candidate));
+            await peerConnection?.addIceCandidate(iceCandidate);
+          } catch (error) {
+            console.error("Error adding ICE candidate:", error);
+          }
+        }
+      );
 
-    console.log("Peer connection", peerConnection);
+      const peerConnection = new RTCPeerConnection(servers);
 
-    peerConnections.set(sessionUuid, peerConnection);
+      console.log("Peer connection", peerConnection);
 
-    setUpDataChannelApiInterface(peerConnection);
-    // setupDataChannelContinuousStream(peerConnection);
+      peerConnections.set(sessionUuid, peerConnection);
 
-    peerConnection.createOffer().then((offer: any) => {
-      console.log("Offer created");
-      peerConnection.setLocalDescription(offer);
-      signalRConnection.invoke("Offer", sessionUuid, JSON.stringify(offer));
-    });
-  }
-);
+      setUpDataChannelApiInterface(peerConnection);
+      // setupDataChannelContinuousStream(peerConnection);
 
-signalRConnection.start().then(() => console.log("Connected to signalR"));
+      peerConnection.createOffer().then((offer: any) => {
+        console.log("Offer created");
+        peerConnection.setLocalDescription(offer);
+        signalRConnection.invoke("Offer", sessionUuid, JSON.stringify(offer));
+      });
+    }
+  );
+});
 
 const setupDataChannel = (peerConnection, dataChannel) => {
   console.log("peerConnection is", peerConnection.connectionState);
@@ -96,7 +101,7 @@ const setupDataChannel = (peerConnection, dataChannel) => {
 const setupDataChannelContinuousStream = async (
   peerConnection: RTCPeerConnection
 ) => {
-  console.log('GOT HERE')
+  console.log("GOT HERE");
   const channel = peerConnection.createDataChannel("piContinuousStream");
   // await fetch(`${CAMERA_API_URL}/stop`);
   // await fetch(`${CAMERA_API_URL}/start`);
@@ -208,7 +213,9 @@ const setUpDummyChannelStream = (peerConnection: RTCPeerConnection) => {
 
 const getCaptureFromApi = async () => {
   try {
-    const response = await fetch(`${CAMERA_API_URL}/capture?shrink=0.3&exposure=${exposure}`);
+    const response = await fetch(
+      `${CAMERA_API_URL}/capture?shrink=0.3&exposure=${exposure}`
+    );
     const contentType = response.headers.get("content-type");
     if (contentType?.includes("image")) {
       return await {
@@ -222,5 +229,20 @@ const getCaptureFromApi = async () => {
     return { image: null, ok: false, error: null };
   } catch (e) {
     return { image: null, ok: false, error: e };
+  }
+};
+
+const getDeviceId = async () => {
+  const response = await fetch("http://localhost");
+  const htmlString = await response.text();
+
+  const pattern = /value="(\d+\w+)"/;
+  const match = htmlString.match(pattern);
+
+  if (match && match[1]) {
+    const deviceId = match[1];
+    console.log("Device ID:", deviceId);
+  } else {
+    console.log("Device ID not found");
   }
 };
