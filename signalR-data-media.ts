@@ -7,7 +7,7 @@ import {
   RTCSessionDescription,
   RTCIceCandidate,
 } from "wrtc";
-import fetch from 'node-fetch';
+const fetch = require("node-fetch");
 
 const API_URL = "https://dev-api-vpc.egoscue.com";
 const CAMERA_API_URL = "https://localhost";
