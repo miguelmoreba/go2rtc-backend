@@ -156,6 +156,8 @@ const setUpDataChannelApiInterface = async (
   cameraApiChannel.onclosing = (e) => console.log("Closing the data channel because" + e);
 
   cameraApiChannel.onclose = (e) => console.log('Channel closed', e);
+
+  cameraApiChannel.onerror = (e) => console.log('Channel error', e);
 };
 
 const setupMediaChannelStream = async (peerConnection: RTCPeerConnection) => {
