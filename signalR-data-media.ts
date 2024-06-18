@@ -72,6 +72,7 @@ signalRConnection.on(
     peerConnections.set(sessionUuid, peerConnection);
 
     setUpDataChannelApiInterface(peerConnection);
+    // setupDataChannelContinuousStream(peerConnection);
 
     peerConnection.createOffer().then((offer: any) => {
       console.log("Offer created");
@@ -95,13 +96,20 @@ const setupDataChannel = (peerConnection, dataChannel) => {
 const setupDataChannelContinuousStream = async (
   peerConnection: RTCPeerConnection
 ) => {
+  console.log('GOT HERE')
   const channel = peerConnection.createDataChannel("piContinuousStream");
-  await fetch(`${CAMERA_API_URL}/stop`);
-  await fetch(`${CAMERA_API_URL}/start`);
+  // await fetch(`${CAMERA_API_URL}/stop`);
+  // await fetch(`${CAMERA_API_URL}/start`);
+
+  setInterval(() => {
+    console.log("peerConnection is", peerConnection.connectionState);
+    console.log("piContinuousStream is", channel.readyState);
+  }, 1000);
 
   setInterval(async () => {
     if (channel.readyState == "open") {
       const response = await getCaptureFromApi();
+      console.log(response);
 
       if (response.image === null) {
         // TODO: error count
@@ -119,8 +127,8 @@ const setUpDataChannelApiInterface = async (
   const cameraApiChannel = peerConnection.createDataChannel("cameraApiChannel");
 
   setInterval(() => {
-    console.log("peerConnection is", peerConnection.connectionState);
-    console.log("cameraApiChannel is", cameraApiChannel.readyState);
+    // console.log("peerConnection is", peerConnection.connectionState);
+    // console.log("cameraApiChannel is", cameraApiChannel.readyState);
   }, 1000);
 
   cameraApiChannel.onmessage = async (event) => {
@@ -200,7 +208,7 @@ const setUpDummyChannelStream = (peerConnection: RTCPeerConnection) => {
 
 const getCaptureFromApi = async () => {
   try {
-    const response = await fetch(`/capture?shrink=0.3&exposure=${exposure}`);
+    const response = await fetch(`${CAMERA_API_URL}/capture?shrink=0.3&exposure=${exposure}`);
     const contentType = response.headers.get("content-type");
     if (contentType?.includes("image")) {
       return await {
