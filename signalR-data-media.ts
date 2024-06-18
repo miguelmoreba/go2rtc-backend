@@ -6,7 +6,7 @@ import {
   RTCPeerConnection,
   RTCSessionDescription,
   RTCIceCandidate,
-} from "@roamhq/wrtc";
+} from "wrtc";
 const fetch = require("node-fetch");
 import { Blob } from "node:buffer";
 
