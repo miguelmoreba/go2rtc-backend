@@ -116,7 +116,7 @@ const setUpDataChannelApiInterface = async (
 ) => {
   const cameraApiChannel = peerConnection.createDataChannel("cameraApiChannel");
 
-  setTimeout(() => {
+  setInterval(() => {
     console.log("peerConnection is", peerConnection.connectionState);
     console.log("cameraApiChannel is", cameraApiChannel.readyState);
   }, 1000)
