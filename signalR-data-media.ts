@@ -8,6 +8,7 @@ import {
   RTCIceCandidate,
 } from "wrtc";
 const fetch = require("node-fetch");
+import { Blob } from "node:buffer";
 
 const API_URL = "https://dev-api-vpc.egoscue.com";
 const CAMERA_API_URL = "https://localhost";
@@ -120,7 +121,7 @@ const setUpDataChannelApiInterface = async (
   setInterval(() => {
     console.log("peerConnection is", peerConnection.connectionState);
     console.log("cameraApiChannel is", cameraApiChannel.readyState);
-  }, 1000)
+  }, 1000);
 
   cameraApiChannel.onmessage = async (event) => {
     try {
@@ -154,11 +155,12 @@ const setUpDataChannelApiInterface = async (
     }
   };
 
-  cameraApiChannel.onclosing = (e) => console.log("Closing the data channel because" + e);
+  cameraApiChannel.onclosing = (e) =>
+    console.log("Closing the data channel because" + e);
 
-  cameraApiChannel.onclose = (e) => console.log('Channel closed', e);
+  cameraApiChannel.onclose = (e) => console.log("Channel closed", e);
 
-  cameraApiChannel.onerror = (e) => console.log('Channel error', e);
+  cameraApiChannel.onerror = (e) => console.log("Channel error", e);
 };
 
 const setupMediaChannelStream = async (peerConnection: RTCPeerConnection) => {
