@@ -23,8 +23,6 @@ const servers = {
   iceCandidatePoolSize: 10,
 };
 
-const cameraId = 1;
-
 let exposure = 300;
 
 const signalRConnection = new HubConnectionBuilder()
