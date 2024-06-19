@@ -42,10 +42,11 @@ const peerConnections = new Map<string, RTCPeerConnection>();
 signalRConnection.start().then(async () => {
   console.log("Connected to signalR");
 
-  const deviceId = await getDeviceId();
+  // const deviceId = await getDeviceId();
+  const deviceId = "100000001d638428";
   
   signalRConnection.on(
-    `ClientRequiresStream-${cameraId}`,
+    `ClientRequiresStream-${deviceId}`,
     async (sessionUuid) => {
       signalRConnection.on(
         `VerifiedAnswer-${sessionUuid}`,
